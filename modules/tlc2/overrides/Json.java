@@ -1,10 +1,10 @@
 package tlc2.overrides;
 /*******************************************************************************
- * Copyright (c) 2019 Microsoft Research. All rights reserved. 
+ * Copyright (c) 2019 Microsoft Research. All rights reserved.
  *
  * The MIT License (MIT)
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
@@ -12,7 +12,7 @@ package tlc2.overrides;
  * so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software. 
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
@@ -45,6 +45,10 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import tlc2.value.IValue;
 import tlc2.value.impl.BoolValue;
 import tlc2.value.impl.FcnLambdaValue;
@@ -153,7 +157,7 @@ public class Json {
     }
     return BoolValue.ValTrue;
   }
-  
+
   /**
    * Serializes a tuple of values to newline delimited JSON.
    *
@@ -418,6 +422,31 @@ public class Json {
     }
   }
 
+  private static Value getValueXXX(JsonElement node) throws IOException {
+    if (node.isJsonArray()) {
+      return getTupleValueXXX(node);
+    }
+    else if (node.isJsonObject()) {
+      return getRecordValueXXX(node);
+    }
+    else if (node.isJsonPrimitive()) {
+      JsonPrimitive primitive = node.getAsJsonPrimitive();
+      if (primitive.isNumber()) {
+        return IntValue.gen(primitive.getAsInt());
+      }
+      else if (primitive.isBoolean()) {
+        return new BoolValue(primitive.getAsBoolean());
+      }
+      else if (primitive.isString()) {
+        return new StringValue(primitive.getAsString());
+      }
+    }
+    else if (node.isJsonNull()) {
+      return null;
+    }
+    throw new IOException("Cannot convert value: unsupported JSON type " + node.toString());
+  }
+
   /**
    * Converts the given {@code JsonNode} to a tuple.
    *
@@ -450,9 +479,41 @@ public class Json {
     return new RecordValue(keys.toArray(new UniqueString[0]), values.toArray(new Value[0]), false);
   }
 
+  /**
+   * Converts the given {@code JsonNode} to a tuple.
+   *
+   * @param node the {@code JsonNode} to convert
+   * @return the tuple value
+   */
+  private static TupleValue getTupleValueXXX(JsonElement node) throws IOException {
+    List<Value> values = new ArrayList<>();
+    JsonArray jsonArray = node.getAsJsonArray();
+    for (int i = 0; i < jsonArray.size(); i++) {
+      values.add(getValueXXX(jsonArray.get(i)));
+    }
+    return new TupleValue(values.toArray(new Value[0]));
+  }
+
+  /**
+   * Converts the given {@code JsonNode} to a record.
+   *
+   * @param node the {@code JsonNode} to convert
+   * @return the record value
+   */
+  private static RecordValue getRecordValueXXX(JsonElement node) throws IOException {
+    List<UniqueString> keys = new ArrayList<>();
+    List<Value> values = new ArrayList<>();
+    Iterator<Map.Entry<String, JsonElement>> iterator = node.getAsJsonObject().entrySet().iterator();
+    while (iterator.hasNext()) {
+      Map.Entry<String, JsonElement> entry = iterator.next();
+      keys.add(UniqueString.uniqueStringOf(entry.getKey()));
+      values.add(getValueXXX(entry.getValue()));
+    }
+    return new RecordValue(keys.toArray(new UniqueString[0]), values.toArray(new Value[0]), false);
+  }
+
 
   final static void resolves() {
 	  // See TLCOverrides.java
   }
 }
-
