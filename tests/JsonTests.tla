@@ -147,4 +147,11 @@ TestPrimitives ==
              /\ input[4] = 4
 ASSUME(TestPrimitives)
 
+\* Round trip with complex object
+RoundTrip ==
+    LET output == <<[a |-> 3], 2, <<<<1, 2>>, 4>>, <<<<<<[b |-> [c |-> <<4, 5, 6>>]]>>>>>>>>
+    IN
+       /\ JsonSerialize("build/json/test.json", output)
+       /\ output = JsonDeserialize("build/json/test.json")
+ASSUME(RoundTrip)
 =============================================================================
