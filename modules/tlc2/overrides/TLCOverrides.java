@@ -37,7 +37,7 @@ public class TLCOverrides implements ITLCOverrides {
 			return new Class[] { TLCExt.class, IOUtils.class, SVG.class, SequencesExt.class, Json.class, Bitwise.class, FiniteSetsExt.class, Functions.class };
 		} catch (NoClassDefFoundError e) {
 			System.out.println(
-					"com.fasterxml.jackson dependencies of Json overrides not found, Json module won't work unless "
+					"gson dependencies of Json overrides not found, Json module won't work unless "
 					+ "the libraries in the lib/ folder of the CommunityModules have been added to the classpath of TLC.");
 		}
 		return new Class[] { TLCExt.class, IOUtils.class, SVG.class, SequencesExt.class, Bitwise.class, FiniteSetsExt.class, Functions.class };

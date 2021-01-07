@@ -155,4 +155,12 @@ RoundTrip ==
        /\ JsonSerialize("build/json/test.json", output)
        /\ output = JsonDeserialize("build/json/test.json")
 ASSUME(RoundTrip)
+
+\* Test the null support
+NullValues ==
+   /\ [eita |-> {1, 2}, abc |-> <<{1, 2}, "null">>] =
+        JsonDeserializeWithNull("tests/fixture/json-with-null.json", {1, 2})
+   /\ <<[eita |-> {1, 2}, abc |-> <<{1, 2}, "null">>]>> =
+        ndJsonDeserializeWithNull("tests/fixture/json-with-null.json", {1, 2})     
+ASSUME(NullValues)
 =============================================================================
