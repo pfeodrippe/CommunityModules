@@ -498,6 +498,10 @@ public class Json {
     return new RecordValue(keys.toArray(new UniqueString[0]), values.toArray(new Value[0]), false);
   }
 
+  /**
+   * @deprecated It will be removed when this Class is moved to `TLC`.
+   */
+  @Deprecated
   final static void resolves() {
 	  // See TLCOverrides.java
   }

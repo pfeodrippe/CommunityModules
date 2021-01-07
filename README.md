@@ -39,6 +39,12 @@ Alternatively, you can download a [library archive](https://github.com/tlaplus/C
 Being a community-driven repository puts the community in charge to check the validity and correctness of submissions. The maintainers of this repository will try to keep this place in order, but we can't guarantee the quality of the
 modules and therefore cannot provide any assistance on eventual malfunctions.
 
+Contributing
+------------
+
+If you have one or more snippets, operators, or modules you'd like to share, please open an issue or create
+a pull request.  Before submitting your operator or module, please consider adding documentation.  The more documentation there is, the more likely it is that someone will find it useful.
+
 Test
 ------------
 Run
@@ -46,12 +52,6 @@ Run
 ``` shell
 ant test
 ```
-
-Contributing
-------------
-
-If you have one or more snippets, operators, or modules you'd like to share, please open an issue or create
-a pull request.  Before submitting your operator or module, please consider adding documentation.  The more documentation there is, the more likely it is that someone will find it useful.
 
 Download
 --------
