@@ -86,13 +86,6 @@ JsonDeserialize(absoluteFilename) ==
   (*************************************************************************)
   CHOOSE val : TRUE
 
-JsonDeserializeWithNull(absoluteFilename, nullValue) ==
-  (*************************************************************************)
-  (* Deserializes JSON values from the given file. JSON objects will be    *)
-  (* deserialized to records, and arrays will be deserialized to tuples.   *)
-  (*************************************************************************)
-  CHOOSE val : TRUE
-
 ndJsonSerialize(absoluteFilename, value) ==
   (*************************************************************************)
   (* Serializes a tuple of values to the given file as newline delimited   *)
@@ -108,13 +101,4 @@ ndJsonDeserialize(absoluteFilename) ==
   (* and arrays will be deserialized to tuples.                            *)
   (*************************************************************************)
   CHOOSE val : TRUE
-
-ndJsonDeserializeWithNull(absoluteFilename, nullValue) ==
-  (*************************************************************************)
-  (* Deserializes JSON values from the given file. JSON values must be     *)
-  (* separated by newlines. JSON objects will be deserialized to records,  *)
-  (* and arrays will be deserialized to tuples.                            *)
-  (*************************************************************************)
-  CHOOSE val : TRUE
-
 =============================================================================

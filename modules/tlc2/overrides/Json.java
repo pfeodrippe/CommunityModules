@@ -118,27 +118,6 @@ public class Json {
   }
 
   /**
-   * Deserializes a tuple of newline delimited JSON values from the given path.
-   *
-   * @param path the JSON file path
-   * @param nullValue the {@code Value} which is interpreted as the null value
-   * @return a tuple of JSON values
-   */
-  @TLAPlusOperator(identifier = "ndJsonDeserializeWithNull", module = "Json", warn = false)
-  public static IValue ndDeserializeWithNull(final StringValue path, Value nullValue) throws IOException {
-    List<Value> values = new ArrayList<>();
-    try (BufferedReader reader = new BufferedReader(new FileReader(new File(path.val.toString())))) {
-      String line = reader.readLine();
-      while (line != null) {
-        JsonElement node = JsonParser.parseString(line);
-        values.add(getValue(node, nullValue));
-        line = reader.readLine();
-      }
-    }
-    return new TupleValue(values.toArray(new Value[0]));
-  }
-
-  /**
    * Deserializes a tuple of *plain* JSON values from the given path.
    *
    * @param path the JSON file path
@@ -148,19 +127,6 @@ public class Json {
   public static IValue deserialize(final StringValue path) throws IOException {
     JsonElement node = JsonParser.parseReader(new FileReader(new File(path.val.toString())));
     return getValue(node);
-  }
-
-  /**
-   * Deserializes a tuple of *plain* JSON values from the given path.
-   *
-   * @param path the JSON file path
-   * @param nullValue the {@code Value} which is interpreted as the null value
-   * @return a tuple of JSON values
-   */
-  @TLAPlusOperator(identifier = "JsonDeserializeWithNull", module = "Json", warn = false)
-  public static IValue deserializeWithNull(final StringValue path, final Value nullValue) throws IOException {
-    JsonElement node = JsonParser.parseReader(new FileReader(new File(path.val.toString())));
-    return getValue(node, nullValue);
   }
 
   /**
@@ -428,22 +394,11 @@ public class Json {
    * @return the converted value
    */
   private static Value getValue(JsonElement node) throws IOException {
-    return getValue(node, null);
-  }
-
-  /**
-   * Recursively converts the given {@code JsonElement} to a TLC value.
-   *
-   * @param node the {@code JsonElement} to convert
-   * @param nullValue the {@code Value} which is interpreted as the null value
-   * @return the converted value
-   */
-  private static Value getValue(JsonElement node, Value nullValue) throws IOException {
     if (node.isJsonArray()) {
-      return getTupleValue(node, nullValue);
+      return getTupleValue(node);
     }
     else if (node.isJsonObject()) {
-      return getRecordValue(node, nullValue);
+      return getRecordValue(node);
     }
     else if (node.isJsonPrimitive()) {
       JsonPrimitive primitive = node.getAsJsonPrimitive();
@@ -458,7 +413,7 @@ public class Json {
       }
     }
     else if (node.isJsonNull()) {
-      return nullValue;
+      return null;
     }
     throw new IOException("Cannot convert value: unsupported JSON value " + node.toString());
   }
@@ -467,14 +422,13 @@ public class Json {
    * Converts the given {@code JsonElement} to a tuple.
    *
    * @param node the {@code JsonElement} to convert
-   * @param nullValue the {@code Value} which is interpreted as the null value
    * @return the tuple value
    */
-  private static TupleValue getTupleValue(JsonElement node, Value nullValue) throws IOException {
+  private static TupleValue getTupleValue(JsonElement node) throws IOException {
     List<Value> values = new ArrayList<>();
     JsonArray jsonArray = node.getAsJsonArray();
     for (int i = 0; i < jsonArray.size(); i++) {
-      values.add(getValue(jsonArray.get(i), nullValue));
+      values.add(getValue(jsonArray.get(i)));
     }
     return new TupleValue(values.toArray(new Value[0]));
   }
@@ -483,17 +437,16 @@ public class Json {
    * Converts the given {@code JsonElement} to a record.
    *
    * @param node the {@code JsonElement} to convert
-   * @param nullValue the {@code Value} which is interpreted as the null value
    * @return the record value
    */
-  private static RecordValue getRecordValue(JsonElement node, Value nullValue) throws IOException {
+  private static RecordValue getRecordValue(JsonElement node) throws IOException {
     List<UniqueString> keys = new ArrayList<>();
     List<Value> values = new ArrayList<>();
     Iterator<Map.Entry<String, JsonElement>> iterator = node.getAsJsonObject().entrySet().iterator();
     while (iterator.hasNext()) {
       Map.Entry<String, JsonElement> entry = iterator.next();
       keys.add(UniqueString.uniqueStringOf(entry.getKey()));
-      values.add(getValue(entry.getValue(), nullValue));
+      values.add(getValue(entry.getValue()));
     }
     return new RecordValue(keys.toArray(new UniqueString[0]), values.toArray(new Value[0]), false);
   }
